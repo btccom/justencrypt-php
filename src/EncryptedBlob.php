@@ -42,6 +42,10 @@ class EncryptedBlob
             throw new \RuntimeException('IV must be exactly 16 bytes');
         }
 
+        if ($tag->getSize() !== 16) {
+            throw new \RuntimeException('Tag must be exactly 16 bytes');
+        }
+
         $this->header = $header;
         $this->iv = $iv;
         $this->cipherText = $cipherText;
@@ -106,13 +110,13 @@ class EncryptedBlob
      */
     public static function fromParser(Parser $parser)
     {
-        $size = $parser->getBuffer()->getSize();
         $header = HeaderBlob::fromParser($parser);
         $iv = $parser->readBytes(16);
+        $size = $parser->getBuffer()->getSize();
         $act = $parser->readBytes($size - $parser->getPosition());
         $tag = $act->slice(-16);
         $ct = $act->slice(0, -16);
 
-        return new EncryptedBlob($header, $iv, $tag, $ct);
+        return new EncryptedBlob($header, $iv, $ct, $tag);
     }
 }

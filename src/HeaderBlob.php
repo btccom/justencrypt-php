@@ -23,6 +23,7 @@ class HeaderBlob
      * @var int
      */
     private $iterations;
+
     /**
      * HeaderBlob constructor.
      * @param int $saltLen
@@ -31,6 +32,10 @@ class HeaderBlob
      */
     public function __construct($saltLen, BufferInterface $salt, $iterations)
     {
+        if ($saltLen > 0x80) {
+            throw new \RuntimeException('Salt too long');
+        }
+
         if ($saltLen !== $salt->getSize()) {
             throw new \RuntimeException('Mismatch in salt size');
         }
@@ -88,7 +93,7 @@ class HeaderBlob
     {
         $saltLen = unpack('c', $parser->readBytes(1)->getBinary())[1];
         $salt = $parser->readBytes($saltLen);
-        $iterations = pack('V', $parser->readBytes(4)->getBinary());
+        $iterations = unpack('V', $parser->readBytes(4)->getBinary())[1];
         return new self($saltLen, $salt, $iterations);
     }
 }

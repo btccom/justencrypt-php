@@ -5,7 +5,6 @@ namespace Btccom\JustEncrypt;
 use AESGCM\AESGCM;
 use BitWasp\Buffertools\Buffer;
 use BitWasp\Buffertools\BufferInterface;
-use BitWasp\Buffertools\Buffertools;
 use BitWasp\Buffertools\Parser;
 
 class Encryption
@@ -28,36 +27,7 @@ class Encryption
             throw new \InvalidArgumentException('Iterations must be an integer > 0');
         }
 
-        return self::encryptWithSaltAndIV($pt, $pw, $salt, $iv, $iterations);
-    }
-
-    /**
-     * @param BufferInterface $ct
-     * @param BufferInterface $pw
-     * @return BufferInterface
-     */
-    public static function decrypt(BufferInterface $ct, BufferInterface $pw)
-    {
-        $parser = new Parser($ct);
-        $sLB = $parser->readBytes(1);
-        $salt = $parser->readBytes($sLB->getInt());
-        $itB = $parser->readBytes(4);
-        $header = new Buffer($sLB->getBinary() . $salt->getBinary() . $itB->getBinary());
-
-        $iv = $parser->readBytes(16);
-        $act = $parser->readBytes($ct->getSize() - $parser->getPosition());
-        $tag = $act->slice(-16);
-        $ct = $act->slice(0, -16);
-
-        return new Buffer(
-            AESGCM::decrypt(
-                KeyDerivation::compute($pw, $salt, unpack('V', $itB->getBinary())[1])->getBinary(),
-                $iv->getBinary(),
-                $ct->getBinary(),
-                $header->getBinary(),
-                $tag->getBinary()
-            )
-        );
+        return self::makeEncryptedBlob($pt, $pw, $salt, $iv, $iterations)->getBuffer();
     }
 
     /**
@@ -70,6 +40,19 @@ class Encryption
      */
     public static function encryptWithSaltAndIV(BufferInterface $pt, BufferInterface $pw, BufferInterface $salt, BufferInterface $iv, $iterations)
     {
+        return self::makeEncryptedBlob($pt, $pw, $salt, $iv, $iterations)->getBuffer();
+    }
+
+    /**
+     * @param BufferInterface $pt
+     * @param BufferInterface $pw
+     * @param BufferInterface $salt
+     * @param BufferInterface $iv
+     * @param int $iterations
+     * @return EncryptedBlob
+     */
+    public static function makeEncryptedBlob(BufferInterface $pt, BufferInterface $pw, BufferInterface $salt, BufferInterface $iv, $iterations)
+    {
         $header = new HeaderBlob($salt->getSize(), $salt, $iterations);
 
         list ($ct, $tag) = AESGCM::encrypt(
@@ -79,6 +62,34 @@ class Encryption
             $header->getBinary()
         );
 
-        return (new EncryptedBlob($header, $iv, new Buffer($ct), new Buffer($tag)))->getBuffer();
+        return new EncryptedBlob($header, $iv, new Buffer($ct), new Buffer($tag));
+    }
+
+    /**
+     * @param BufferInterface $ct
+     * @param BufferInterface $pw
+     * @return BufferInterface
+     */
+    public static function decrypt(BufferInterface $ct, BufferInterface $pw)
+    {
+        return self::decryptBlob(EncryptedBlob::fromParser(new Parser($ct)), $pw);
+    }
+
+    /**
+     * @param EncryptedBlob $blob
+     * @param BufferInterface $pw
+     * @return Buffer
+     */
+    public static function decryptBlob(EncryptedBlob $blob, BufferInterface $pw)
+    {
+        return new Buffer(
+            AESGCM::decrypt(
+                KeyDerivation::compute($pw, $blob->getHeader()->getSalt(), $blob->getHeader()->getIterations())->getBinary(),
+                $blob->getIv()->getBinary(),
+                $blob->getCipherText()->getBinary(),
+                $blob->getHeader()->getBinary(),
+                $blob->getTag()->getBinary()
+            )
+        );
     }
 }
