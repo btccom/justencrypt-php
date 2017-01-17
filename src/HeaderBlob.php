@@ -70,6 +70,15 @@ class HeaderBlob
     }
 
     /**
+     * @param BufferInterface $passphrase
+     * @return BufferInterface
+     */
+    public function deriveKey(BufferInterface $passphrase)
+    {
+        return KeyDerivation::compute($passphrase, $this->salt, $this->iterations);
+    }
+
+    /**
      * @return string
      */
     public function getBinary()

@@ -56,7 +56,7 @@ class Encryption
         $header = new HeaderBlob($salt->getSize(), $salt, $iterations);
 
         list ($ct, $tag) = AESGCM::encrypt(
-            KeyDerivation::compute($pw, $header->getSalt(), $header->getIterations())->getBinary(),
+            $header->deriveKey($pw)->getBinary(),
             $iv->getBinary(),
             $pt->getBinary(),
             $header->getBinary()
@@ -84,7 +84,7 @@ class Encryption
     {
         return new Buffer(
             AESGCM::decrypt(
-                KeyDerivation::compute($pw, $blob->getHeader()->getSalt(), $blob->getHeader()->getIterations())->getBinary(),
+                $blob->getHeader()->deriveKey($pw)->getBinary(),
                 $blob->getIv()->getBinary(),
                 $blob->getCipherText()->getBinary(),
                 $blob->getHeader()->getBinary(),

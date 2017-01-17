@@ -87,6 +87,14 @@ class EncryptedBlob
     /**
      * @return string
      */
+    public function getMnemonic()
+    {
+        return EncryptionMnemonic::encode($this->getBuffer());
+    }
+
+    /**
+     * @return string
+     */
     public function getBinary()
     {
         return
@@ -110,13 +118,13 @@ class EncryptedBlob
      */
     public static function fromParser(Parser $parser)
     {
-        $header = HeaderBlob::fromParser($parser);
-        $iv = $parser->readBytes(16);
         $size = $parser->getBuffer()->getSize();
-        $act = $parser->readBytes($size - $parser->getPosition());
-        $tag = $act->slice(-16);
-        $ct = $act->slice(0, -16);
 
-        return new EncryptedBlob($header, $iv, $ct, $tag);
+        return new EncryptedBlob(
+            HeaderBlob::fromParser($parser),
+            $parser->readBytes(16),
+            $parser->readBytes($size - $parser->getPosition() - 16),
+            $parser->readBytes(16)
+        );
     }
 }
