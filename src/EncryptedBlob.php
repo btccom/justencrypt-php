@@ -3,6 +3,7 @@
 namespace Btccom\JustEncrypt;
 
 
+use AESGCM\AESGCM;
 use BitWasp\Buffertools\Buffer;
 use BitWasp\Buffertools\BufferInterface;
 use BitWasp\Buffertools\Parser;
@@ -90,6 +91,23 @@ class EncryptedBlob
     public function getMnemonic()
     {
         return EncryptionMnemonic::encode($this->getBuffer());
+    }
+
+    /**
+     * @param BufferInterface $password
+     * @return Buffer
+     */
+    public function decrypt(BufferInterface $password)
+    {
+        return new Buffer(
+            AESGCM::decrypt(
+                $this->header->deriveKey($password)->getBinary(),
+                $this->iv->getBinary(),
+                $this->cipherText->getBinary(),
+                $this->header->getBinary(),
+                $this->tag->getBinary()
+            )
+        );
     }
 
     /**

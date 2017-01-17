@@ -9,6 +9,7 @@ use BitWasp\Buffertools\Parser;
 
 class Encryption
 {
+
     const DEFAULT_SALTLEN = 10;
     const TAGLEN_BITS = 128;
     const IVLEN_BYTES = 16;
@@ -51,7 +52,7 @@ class Encryption
      * @param int $iterations
      * @return EncryptedBlob
      */
-    public static function makeEncryptedBlob(BufferInterface $pt, BufferInterface $pw, BufferInterface $salt, BufferInterface $iv, $iterations)
+    private static function makeEncryptedBlob(BufferInterface $pt, BufferInterface $pw, BufferInterface $salt, BufferInterface $iv, $iterations)
     {
         $header = new HeaderBlob($salt->getSize(), $salt, $iterations);
 
@@ -72,24 +73,6 @@ class Encryption
      */
     public static function decrypt(BufferInterface $ct, BufferInterface $pw)
     {
-        return self::decryptBlob(EncryptedBlob::fromParser(new Parser($ct)), $pw);
-    }
-
-    /**
-     * @param EncryptedBlob $blob
-     * @param BufferInterface $pw
-     * @return Buffer
-     */
-    public static function decryptBlob(EncryptedBlob $blob, BufferInterface $pw)
-    {
-        return new Buffer(
-            AESGCM::decrypt(
-                $blob->getHeader()->deriveKey($pw)->getBinary(),
-                $blob->getIv()->getBinary(),
-                $blob->getCipherText()->getBinary(),
-                $blob->getHeader()->getBinary(),
-                $blob->getTag()->getBinary()
-            )
-        );
+        return EncryptedBlob::fromParser(new Parser($ct))->decrypt($pw);
     }
 }

@@ -11,7 +11,7 @@ class HeaderBlobTest extends AbstractTestCase
     public function testValues() {
 
         $salt = new Buffer(random_bytes(4));
-        $iterations = 1024;
+        $iterations = 10;
 
         $pw = new Buffer("passwords can be long, and even consist of unprintable characters \x01\x90");
 
