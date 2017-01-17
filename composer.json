@@ -1,0 +1,22 @@
+{
+  "name": "btccom/justencrypt",
+  "require": {
+    "bitwasp/bitcoin": "v0.0.32.1",
+    "spomky-labs/php-aes-gcm": "*"
+  },
+  "license": "MIT",
+  "require-dev": {
+    "phpunit/phpunit": "^4.5|^5.0",
+    "squizlabs/php_codesniffer": "^2.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "Btccom\\JustEncrypt\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Btccom\\JustEncrypt\\Test\\": "test/"
+    }
+  }
+}
