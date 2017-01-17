@@ -15,12 +15,12 @@ class Encryption
     const IVLEN_BYTES = 16;
 
     /**
-     * @param BufferInterface $pt
-     * @param BufferInterface $pw
+     * @param BufferInterface $plainText
+     * @param BufferInterface $passphrase
      * @param int $iterations
-     * @return BufferInterface
+     * @return EncryptedBlob
      */
-    public static function encrypt(BufferInterface $pt, BufferInterface $pw, $iterations = KeyDerivation::DEFAULT_ITERATIONS)
+    public static function encrypt(BufferInterface $plainText, BufferInterface $passphrase, $iterations = KeyDerivation::DEFAULT_ITERATIONS)
     {
         $salt = new Buffer(random_bytes(self::DEFAULT_SALTLEN));
         $iv = new Buffer(random_bytes(self::IVLEN_BYTES));
@@ -28,20 +28,7 @@ class Encryption
             throw new \InvalidArgumentException('Iterations must be an integer > 0');
         }
 
-        return self::makeEncryptedBlob($pt, $pw, $salt, $iv, $iterations)->getBuffer();
-    }
-
-    /**
-     * @param BufferInterface $pt
-     * @param BufferInterface $pw
-     * @param BufferInterface $salt
-     * @param BufferInterface $iv
-     * @param int $iterations
-     * @return BufferInterface
-     */
-    public static function encryptWithSaltAndIV(BufferInterface $pt, BufferInterface $pw, BufferInterface $salt, BufferInterface $iv, $iterations)
-    {
-        return self::makeEncryptedBlob($pt, $pw, $salt, $iv, $iterations)->getBuffer();
+        return self::encryptWithSaltAndIV($plainText, $passphrase, $salt, $iv, $iterations);
     }
 
     /**
@@ -52,7 +39,7 @@ class Encryption
      * @param int $iterations
      * @return EncryptedBlob
      */
-    private static function makeEncryptedBlob(BufferInterface $pt, BufferInterface $pw, BufferInterface $salt, BufferInterface $iv, $iterations)
+    public static function encryptWithSaltAndIV(BufferInterface $pt, BufferInterface $pw, BufferInterface $salt, BufferInterface $iv, $iterations)
     {
         $header = new HeaderBlob($salt->getSize(), $salt, $iterations);
 

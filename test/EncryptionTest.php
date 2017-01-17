@@ -31,7 +31,7 @@ class EncryptionTest extends AbstractTestCase
      */
     public function testEncryption(BufferInterface $password, BufferInterface $salt, $iterations, BufferInterface $iv, BufferInterface $plaintext, BufferInterface $ciphertext, BufferInterface $tag, BufferInterface $serialized)
     {
-        $encrypt = Encryption::encryptWithSaltAndIV($plaintext, $password, $salt, $iv, $iterations);
+        $encrypt = Encryption::encryptWithSaltAndIV($plaintext, $password, $salt, $iv, $iterations)->getBuffer();
         $decrypted = Encryption::decrypt($encrypt, $password);
 
         $this->assertEquals($plaintext, $decrypted);

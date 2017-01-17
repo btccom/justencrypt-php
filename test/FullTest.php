@@ -24,14 +24,14 @@ class FullTest extends AbstractTestCase
         $primarySeed = $this->random(32);
         $secret = $this->random(32);
 
-        $encryptedSecret = Encryption::encrypt($secret, $passphrase);
+        $encryptedSecret = Encryption::encrypt($secret, $passphrase)->getBuffer();
         $this->assertTrue($secret->equals(Encryption::decrypt($encryptedSecret, $passphrase)));
 
-        $encryptedPrimarySeed = Encryption::encrypt($primarySeed, $secret);
+        $encryptedPrimarySeed = Encryption::encrypt($primarySeed, $secret)->getBuffer();
         $this->assertTrue($primarySeed->equals(Encryption::decrypt($encryptedPrimarySeed, $secret)));
 
         $recoverySecret = $this->random(32);
-        $recoveryEncryptedSecret = Encryption::encrypt($secret, $recoverySecret);
+        $recoveryEncryptedSecret = Encryption::encrypt($secret, $recoverySecret)->getBuffer();
         $this->assertTrue($secret->equals(Encryption::decrypt($recoveryEncryptedSecret, $recoverySecret)));
 
         $backupInfo = [
