@@ -38,6 +38,10 @@ class EncryptedBlob
      */
     public function __construct(HeaderBlob $header, BufferInterface $iv, BufferInterface $cipherText, BufferInterface $tag)
     {
+        if ($iv->getSize() !== 16) {
+            throw new \RuntimeException('IV must be exactly 16 bytes');
+        }
+
         $this->header = $header;
         $this->iv = $iv;
         $this->cipherText = $cipherText;

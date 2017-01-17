@@ -70,19 +70,15 @@ class Encryption
      */
     public static function encryptWithSaltAndIV(BufferInterface $pt, BufferInterface $pw, BufferInterface $salt, BufferInterface $iv, $iterations)
     {
-        if ($iv->getSize() !== 16) {
-            throw new \RuntimeException('IV must be exactly 16 bytes');
-        }
-
-        $header = new Buffer(pack('C', $salt->getSize()) . $salt->getBinary() . pack('V', $iterations));
+        $header = new HeaderBlob($salt->getSize(), $salt, $iterations);
 
         list ($ct, $tag) = AESGCM::encrypt(
-            KeyDerivation::compute($pw, $salt, $iterations)->getBinary(),
+            KeyDerivation::compute($pw, $header->getSalt(), $header->getIterations())->getBinary(),
             $iv->getBinary(),
             $pt->getBinary(),
             $header->getBinary()
         );
 
-        return Buffertools::concat($header, new Buffer($iv->getBinary() . $ct . $tag));
+        return (new EncryptedBlob($header, $iv, new Buffer($ct), new Buffer($tag)))->getBuffer();
     }
 }

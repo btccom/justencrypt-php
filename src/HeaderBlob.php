@@ -31,6 +31,10 @@ class HeaderBlob
      */
     public function __construct($saltLen, BufferInterface $salt, $iterations)
     {
+        if ($saltLen !== $salt->getSize()) {
+            throw new \RuntimeException('Mismatch in salt size');
+        }
+
         $this->saltLen = $saltLen;
         $this->salt = $salt;
         $this->iterations = $iterations;
