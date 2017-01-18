@@ -2,7 +2,6 @@
 
 namespace Btccom\JustEncrypt;
 
-use BitWasp\Buffertools\Buffer;
 use BitWasp\Buffertools\BufferInterface;
 
 class KeyDerivation
@@ -20,26 +19,7 @@ class KeyDerivation
      */
     public static function compute(BufferInterface $password, BufferInterface $salt, $iterations)
     {
-        if (!($iterations >= 0 && $iterations < pow(2, 32))) {
-            throw new \RuntimeException('Iterations must be a number between 1 and 2^32');
-        }
-
-        if ($iterations < 0) {
-            throw new \RuntimeException('Iteration count should be at least 1');
-        }
-
-        if ($salt->getSize() === 0) {
-            throw new \RuntimeException('Salt must not be empty');
-        }
-
-        if ($salt->getSize() > 0x80) {
-            throw new \RuntimeException('Sanity check: Invalid salt, length can never be greater than 128');
-        }
-
-        if ($password->getSize() === 0) {
-            throw new \RuntimeException('Password must not be empty');
-        }
-
-        return new Buffer(hash_pbkdf2(self::HASHER, $password->getBinary(), $salt->getBinary(), $iterations, self::KEYLEN_BITS / 8, true));
+        $header = new HeaderBlob($salt->getSize(), $salt, $iterations);
+        return $header->deriveKey($password);
     }
 }

@@ -41,6 +41,10 @@ class HeaderBlob
             throw new \RuntimeException('Mismatch in salt size');
         }
 
+        if (!is_int($iterations) || $iterations < 1) {
+            throw new \InvalidArgumentException('Iterations must be an integer > 0');
+        }
+
         $this->saltLen = $saltLen;
         $this->salt = $salt;
         $this->iterations = $iterations;
@@ -76,7 +80,27 @@ class HeaderBlob
      */
     public function deriveKey(BufferInterface $passphrase)
     {
-        return KeyDerivation::compute($passphrase, $this->salt, $this->iterations);
+        if ($passphrase->getSize() === 0) {
+            throw new \RuntimeException('Password must not be empty');
+        }
+
+        if (!($this->iterations >= 0 && $this->iterations < pow(2, 32))) {
+            throw new \RuntimeException('Iterations must be a number between 1 and 2^32');
+        }
+
+        if ($this->iterations < 0) {
+            throw new \RuntimeException('Iteration count should be at least 1');
+        }
+
+        if ($this->salt->getSize() === 0) {
+            throw new \RuntimeException('Salt must not be empty');
+        }
+
+        if ($this->salt->getSize() > 0x80) {
+            throw new \RuntimeException('Sanity check: Invalid salt, length can never be greater than 128');
+        }
+
+        return new Buffer(hash_pbkdf2(KeyDerivation::HASHER, $passphrase->getBinary(), $this->salt->getBinary(), $this->iterations, KeyDerivation::KEYLEN_BITS / 8, true));
     }
 
     /**
@@ -85,6 +109,26 @@ class HeaderBlob
     public function getBinary()
     {
         return pack('c', $this->saltLen) . $this->salt->getBinary() . pack('V', $this->iterations);
+    }
+
+    /**
+     * @param BufferInterface $plainText
+     * @param BufferInterface $passphrase
+     * @param BufferInterface $iv
+     * @return EncryptedBlob
+     */
+    public function encrypt(BufferInterface $plainText, BufferInterface $passphrase, BufferInterface $iv)
+    {
+        $iv = $iv ?: new Buffer(random_bytes(16));
+
+        list ($ct, $tag) = AESGCM::encrypt(
+            $this->deriveKey($passphrase)->getBinary(),
+            $iv->getBinary(),
+            $plainText->getBinary(),
+            $this->getBinary()
+        );
+
+        return new EncryptedBlob($this, $iv, new Buffer($ct), new Buffer($tag));
     }
 
     /**

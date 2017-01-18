@@ -16,9 +16,9 @@ class EncryptedBlobTest extends AbstractTestCase
         $ciphertext = new Buffer("\x41");
         $encryptedBlob = new EncryptedBlob($header, $iv, $ciphertext, $tag);
 
+        $this->assertSame($header, $encryptedBlob->getHeader());
         $this->assertTrue($iv->equals($encryptedBlob->getIv()));
         $this->assertTrue($tag->equals($encryptedBlob->getTag()));
-        $this->assertSame($header, $encryptedBlob->getHeader());
         $this->assertTrue($ciphertext->equals($encryptedBlob->getCipherText()));
 
         $expected = $header->getBinary() . $iv->getBinary() . $ciphertext->getBinary() . $tag->getBinary();

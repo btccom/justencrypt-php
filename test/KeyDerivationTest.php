@@ -29,8 +29,6 @@ class KeyDerivationTest extends AbstractTestCase
     public function testKeyDerivation(BufferInterface $password, BufferInterface $salt, $iterations, BufferInterface $expectedOutput)
     {
         $output = KeyDerivation::compute($password, $salt, $iterations);
-        $derivedKey = (new HeaderBlob($salt->getSize(), $salt, $iterations))->deriveKey($password);
         $this->assertTrue($expectedOutput->equals($output), 'key derivation produces same output');
-        $this->assertTrue($expectedOutput->equals($derivedKey), 'key derivation produces same output');
     }
 }
