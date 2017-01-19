@@ -2,14 +2,14 @@
 
 namespace Btccom\JustEncrypt\Test;
 
-
 use BitWasp\Buffertools\Buffer;
 use Btccom\JustEncrypt\EncryptedBlob;
 use Btccom\JustEncrypt\HeaderBlob;
 
 class EncryptedBlobTest extends AbstractTestCase
 {
-    public function testBlobParameters() {
+    public function testBlobParameters()
+    {
         $header = new HeaderBlob(1, new Buffer("\x00"), 1);
         $iv = new Buffer("\x01", 16);
         $tag = new Buffer("\x02", 16);

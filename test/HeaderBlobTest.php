@@ -2,13 +2,13 @@
 
 namespace Btccom\JustEncrypt\Test;
 
-
 use BitWasp\Buffertools\Buffer;
 use Btccom\JustEncrypt\HeaderBlob;
 
 class HeaderBlobTest extends AbstractTestCase
 {
-    public function testValues() {
+    public function testValues()
+    {
 
         $salt = new Buffer(random_bytes(4));
         $iterations = 10;

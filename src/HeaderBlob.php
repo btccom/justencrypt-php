@@ -2,7 +2,6 @@
 
 namespace Btccom\JustEncrypt;
 
-
 use AESGCM\AESGCM;
 use BitWasp\Buffertools\Buffer;
 use BitWasp\Buffertools\BufferInterface;
