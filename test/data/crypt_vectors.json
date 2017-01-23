@@ -17,6 +17,18 @@
       "salt": "41",
       "iterations": 20000,
       "output": "5e3f3da505d210482d96d8e1f5f853fc111c66e0bcab6d86c911393ebb741ef8"
+    },
+    {
+      "password_utf8": "最近出块",
+      "salt": "41",
+      "iterations": 20000,
+      "output": "786af4f1e7ba5d4d9ac32a85d90f6420c00823a83c92fae8d96b3c50a8501d3c"
+    },
+    {
+      "password_utf8": "われる　われる",
+      "salt": "41",
+      "iterations": 20000,
+      "output": "7e1a4fa54526cb038fedcf136f7048f817a056c3c18faaa570e1d859af239231"
     }
   ],
   "decryptonly":

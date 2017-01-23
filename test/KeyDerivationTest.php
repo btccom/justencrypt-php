@@ -15,7 +15,12 @@ class KeyDerivationTest extends AbstractTestCase
     public function getKeyDerivationVectors()
     {
         return array_map(function (array $row) {
-            return [Buffer::hex($row['password']), Buffer::hex($row['salt']), $row['iterations'], Buffer::hex($row['output'])];
+            if (isset($row['password_utf8'])) {
+                $password = new Buffer($row['password_utf8']);
+            } else {
+                $password = Buffer::hex($row['password']);
+            }
+            return [$password, Buffer::hex($row['salt']), $row['iterations'], Buffer::hex($row['output'])];
         }, $this->getTestVectors()['keyderivation']);
     }
 
