@@ -2,6 +2,7 @@
   "name": "btccom/justencrypt",
   "require": {
     "bitwasp/bitcoin": "v0.0.32.1",
+    "paragonie/random_compat": "^1.0|^2.0",
     "spomky-labs/php-aes-gcm": "*",
     "paragonie/constant_time_encoding": "^1.0|^2.0"
   },
