@@ -12,6 +12,9 @@ phpunit: pretest
 phpunit-ci: pretest
 		vendor/bin/phpunit --coverage-text --coverage-clover=build/coverage.clover
 
+test-examples: pretest
+		./validate_examples.sh
+
 ifndef STRICT
 STRICT = 0
 endif
