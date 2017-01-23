@@ -7,7 +7,7 @@ pretest:
 		if [ ! -d vendor ] || [ ! -f composer.lock ]; then composer install; else echo "Already have dependencies"; fi
 
 phpunit: pretest
-		vendor/bin/phpunit --coverage-text --coverage-clover=build/coverage.clover --coverage-html=build/Results
+		vendor/bin/phpunit --coverage-text --coverage-clover=build/coverage.clover --coverage-html=build/doc
 
 phpunit-ci: pretest
 		vendor/bin/phpunit --coverage-text --coverage-clover=build/coverage.clover

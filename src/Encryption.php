@@ -9,7 +9,6 @@ use BitWasp\Buffertools\Parser;
 class Encryption
 {
 
-    const DEFAULT_SALTLEN = 10;
     const TAGLEN_BITS = 128;
     const IVLEN_BYTES = 16;
 
@@ -21,33 +20,33 @@ class Encryption
      */
     public static function encrypt(BufferInterface $plainText, BufferInterface $passphrase, $iterations = KeyDerivation::DEFAULT_ITERATIONS)
     {
-        $salt = new Buffer(random_bytes(self::DEFAULT_SALTLEN));
+        $salt = KeyDerivation::generateSalt();
         $iv = new Buffer(random_bytes(self::IVLEN_BYTES));
         return self::encryptWithSaltAndIV($plainText, $passphrase, $salt, $iv, $iterations);
     }
 
     /**
-     * @param BufferInterface $pt
-     * @param BufferInterface $pw
+     * @param BufferInterface $plainText
+     * @param BufferInterface $password
      * @param BufferInterface $salt
      * @param BufferInterface $iv
      * @param int $iterations
      * @return EncryptedBlob
      */
-    public static function encryptWithSaltAndIV(BufferInterface $pt, BufferInterface $pw, BufferInterface $salt, BufferInterface $iv, $iterations)
+    public static function encryptWithSaltAndIV(BufferInterface $plainText, BufferInterface $password, BufferInterface $salt, BufferInterface $iv, $iterations)
     {
         $header = new HeaderBlob($salt->getSize(), $salt, $iterations);
-        $blob = $header->encrypt($pt, $pw, $iv);
+        $blob = $header->encrypt($plainText, $password, $iv);
         return $blob;
     }
 
     /**
-     * @param BufferInterface $ct
-     * @param BufferInterface $pw
+     * @param BufferInterface $cipherText
+     * @param BufferInterface $password
      * @return BufferInterface
      */
-    public static function decrypt(BufferInterface $ct, BufferInterface $pw)
+    public static function decrypt(BufferInterface $cipherText, BufferInterface $password)
     {
-        return EncryptedBlob::fromParser(new Parser($ct))->decrypt($pw);
+        return EncryptedBlob::fromParser(new Parser($cipherText))->decrypt($password);
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-require "vendor/autoload.php";
+require __DIR__ . "/../vendor/autoload.php";
 
 use Btccom\JustEncrypt\Encryption;
 use Btccom\JustEncrypt\KeyDerivation;
@@ -14,6 +14,7 @@ $secret = new Buffer(random_bytes(32));
 $encryptedSecret = Encryption::encrypt($secret, $password);
 
 // protect secret with the recovery secret - recovery secret to server, user keeps recoveryEncryptedSecret
+// part of the wallet generation procedure, not important for this example
 $recoverySecret = new Buffer(random_bytes(32));
 $recoveryEncryptedSecret = Encryption::encrypt($secret, $recoverySecret);
 
