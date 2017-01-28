@@ -8,7 +8,6 @@ php:
 
 env:
   - PHPUNIT=true
-  - EXAMPLES=true
 
 matrix:
   fast_finish: true
@@ -26,6 +25,10 @@ matrix:
       # This runs phpcs on php7.0 - only code style
     - php: 7.0
       env: CODESTYLE=true
+
+      # This runs examples on php 7.0
+    - php: 7.0
+      env: EXAMPLES=true
 
 install:
   - composer update
