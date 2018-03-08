@@ -4,6 +4,8 @@ php:
   - 5.6
   - 7.0
   - 7.1
+  - 7.2
+  - nightly
   - hhvm
 
 env:
@@ -20,15 +22,7 @@ matrix:
   include:
       # This reenables php7.0/phpunit test with COVERAGE
     - php: 7.0
-      env: PHPUNIT=true COVERAGE=true
-
-      # This runs phpcs on php7.0 - only code style
-    - php: 7.0
-      env: CODESTYLE=true
-
-      # This runs examples on php 7.0
-    - php: 7.0
-      env: EXAMPLES=true
+      env: PHPUNIT=true COVERAGE=true CODESTYLE=true EXAMPLES=true
 
 install:
   - composer update
