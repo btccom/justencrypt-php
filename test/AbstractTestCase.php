@@ -22,6 +22,28 @@ abstract class AbstractTestCase extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @param string $file
+     * @return string
+     */
+    public function dataPath($file)
+    {
+        return __DIR__ . '/data/' . $file;
+    }
+
+    /**
+     * @param string $filename
+     * @return string
+     */
+    public function dataFile($filename)
+    {
+        $contents = file_get_contents($this->dataPath($filename));
+        if (false === $contents) {
+            throw new \RuntimeException('Failed to data file ' . $filename);
+        }
+        return $contents;
+    }
+
+    /**
      * @return array
      */
     private function readTestVectorsFile()

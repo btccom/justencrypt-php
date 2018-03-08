@@ -2,14 +2,31 @@
 
 namespace Btccom\JustEncrypt;
 
-use BitWasp\Bitcoin\Mnemonic\MnemonicFactory;
 use BitWasp\Buffertools\Buffer;
 use BitWasp\Buffertools\BufferInterface;
+use Btccom\JustEncrypt\Encoding\Mnemonic;
+use Btccom\JustEncrypt\Encoding\Wordlist;
 
 class EncryptionMnemonic
 {
     const CHUNK_SIZE = 4;
     const PADDING_DUMMY = "\x81";
+
+    /**
+     * @var Mnemonic
+     */
+    protected static $encoder;
+
+    /**
+     * @return Mnemonic
+     */
+    protected static function getEncoder()
+    {
+        if (null === static::$encoder) {
+            static::$encoder = new Mnemonic(new Wordlist());
+        }
+        return static::$encoder;
+    }
 
     /**
      * @param string $data
@@ -31,11 +48,11 @@ class EncryptionMnemonic
      */
     public static function encode(BufferInterface $data)
     {
-        $bip39 = MnemonicFactory::bip39();
-        $mnemonic = $bip39->entropyToMnemonic(new Buffer(self::derivePadding($data->getBinary()) . $data->getBinary()));
+        $encoder = static::getEncoder();
+        $mnemonic = $encoder->entropyToMnemonic(new Buffer(self::derivePadding($data->getBinary()) . $data->getBinary()));
 
         try {
-            $bip39->mnemonicToEntropy($mnemonic);
+            $encoder->mnemonicToEntropy($mnemonic);
         } catch (\Exception $e) {
             throw new \RuntimeException('BIP39 produced an invalid mnemonic');
         }
@@ -49,7 +66,7 @@ class EncryptionMnemonic
      */
     public static function decode($mnemonic)
     {
-        $bip39 = MnemonicFactory::bip39();
+        $bip39 = static::getEncoder();
         $decoded = $bip39->mnemonicToEntropy($mnemonic)->getBinary();
         $padFinish = 0;
         while ($decoded[$padFinish] === self::PADDING_DUMMY) {
